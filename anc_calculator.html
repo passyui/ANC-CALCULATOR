@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>ANC Calculator</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#007bff" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 95vw;
+      margin-top: 30px;
+    }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      padding: 12px 0;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+    button:active {
+      background: #0056b3;
+    }
+    .result {
+      margin-top: 18px;
+      font-size: 18px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .reference {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+    }
+    .status {
+      font-size: 16px;
+      margin-top: 5px;
+      text-align: center;
+    }
+    .low {
+      color: #d9534f;
+    }
+    .normal {
+      color: #5cb85c;
+    }
+    .high {
+      color: #f0ad4e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Absolute Neutrophil Count (ANC) Calculator</h1>
+    <label for="wbc">WBC (×10⁹/L):</label>
+    <input type="number" id="wbc" step="0.1" placeholder="e.g. 10.2" />
+
+    <label for="neut">Neutrophil %:</label>
+    <input type="number" id="neut" step="0.1" placeholder="e.g. 21.82" />
+
+    <button onclick="calculateANC()">Calculate ANC</button>
+
+    <div class="result" id="result"></div>
+    <div class="status" id="status"></div>
+    <div class="reference">Normal ANC Range: 1.5 - 7.0 × 10⁹/L</div>
+  </div>
+
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.error('SW registration failed:', err));
+      });
+    }
+
+    function calculateANC() {
+      const wbc = parseFloat(document.getElementById("wbc").value);
+      const neut = parseFloat(document.getElementById("neut").value);
+
+      const resultEl = document.getElementById("result");
+      const statusEl = document.getElementById("status");
+
+      if (isNaN(wbc) || isNaN(neut)) {
+        resultEl.innerText = "Please enter valid numbers for WBC and Neutrophil %.";
+        statusEl.innerText = "";
+        return;
+      }
+
+      const anc = parseFloat((wbc * (neut / 100)).toFixed(2));
+      resultEl.innerText = `ANC: ${anc} × 10⁹/L`;
+
+      if (anc < 1.5) {
+        statusEl.innerText = "ANC is low (Neutropenia).";
+        statusEl.className = "status low";
+      } else if (anc > 7.0) {
+        statusEl.innerText = "ANC is high (Possible infection or inflammation).";
+        statusEl.className = "status high";
+      } else {
+        statusEl.innerText = "ANC is within the normal range.";
+        statusEl.className = "status normal";
+      }
+    }
+  </script>
+</body>
+</html>
